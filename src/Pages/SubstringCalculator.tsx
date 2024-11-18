@@ -65,7 +65,7 @@ export default function SubstringCalculator() {
         }
 
         try {
-            const data = await calculateSubstring(input.trim());
+            const data:any = await calculateSubstring(input.trim());
             setResult(data);
             toast({
                 title: "Success",

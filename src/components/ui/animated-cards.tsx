@@ -1,13 +1,17 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-interface AnimatedCardProps extends React.HTMLAttributes<HTMLDivElement> {
+type AnimatedCardProps = HTMLMotionProps<"div"> & {
     children: React.ReactNode;
     className?: string;
-}
+};
 
-export const AnimatedCard = ({ children, className, ...props }: AnimatedCardProps) => {
+export const AnimatedCard = ({
+    children,
+    className,
+    ...props
+}: AnimatedCardProps) => {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}

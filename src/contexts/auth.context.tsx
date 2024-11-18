@@ -1,10 +1,19 @@
+// auth.context.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { authService } from '@/services/auth.service'
 import { RegisterCredentials, User } from '@/services/api.types';
 import { useToast } from '@/hooks/use-toast';
 
+// Define the nested user response structure
+interface UserResponse {
+    data: {
+        user: User;
+        token?: string;
+    };
+}
+
 interface AuthContextType {
-    user: User | null;
+    user: UserResponse | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
     register: (credentials: RegisterCredentials) => Promise<void>;
@@ -17,7 +26,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null)
+    const [user, setUser] = useState<UserResponse | null>(null)
     const [loading, setLoading] = useState(true)
     const { toast } = useToast()
 
@@ -27,7 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (token) {
                 try {
                     const userData = await authService.getMe()
-                    setUser(userData)
+                    // Ensure userData is in the correct format
+                    setUser({ data: { user: userData.data.user } })
                 } catch (error) {
                     localStorage.removeItem('token')
                     toast({
@@ -45,9 +55,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (email: string, password: string) => {
         try {
-            const { user, token } = await authService.login({ email, password })
+            const response = await authService.login({ email, password })
+            const { token, data: { user } } = response
             localStorage.setItem('token', token)
-            setUser(user)
+            setUser({ data: { user, token } })
             toast({
                 title: "Welcome back!",
                 description: `Good to see you again, ${user.firstName}!`,
@@ -64,9 +75,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const register = async (credentials: RegisterCredentials) => {
         try {
-            const { user, token } = await authService.register(credentials)
+            const response = await authService.register(credentials)
+            const { token, data: { user } } = response
             localStorage.setItem('token', token)
-            setUser(user)
+            setUser({ data: { user, token } })
             toast({
                 title: "Welcome!",
                 description: `Your account has been created successfully, ${user.firstName}!`,
@@ -83,8 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const uploadProfileImage = async (image: File) => {
         try {
-            const updatedUser = await authService.uploadProfileImage(image)
-            setUser(updatedUser)
+            const response = await authService.uploadProfileImage(image)
+            setUser({ data: { user: response.data.user } })
             toast({
                 title: "Success",
                 description: "Profile image updated successfully",
@@ -101,8 +113,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const updateProfile = async (data: Partial<User>) => {
         try {
-            const updatedUser = await authService.updateProfile(data)
-            setUser(updatedUser)
+            const response = await authService.updateProfile(data)
+            setUser({ data: { user: response.data.user } })
             toast({
                 title: "Success",
                 description: "Profile updated successfully",

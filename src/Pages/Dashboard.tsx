@@ -1,12 +1,49 @@
-// src/pages/Dashboard.tsx
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { AnimatedCard } from "@/components/ui/animated-cards";
 import { Spotlight } from "@/components/ui/spotlight";
 import { useAuth } from "@/contexts/auth.context";
-import { Calculator, GitGraph, History, Activity } from "lucide-react";
+import { Calculator, GitGraph, History } from "lucide-react";
 import { AnimatedCounter } from "@/components/ui/animated-numbers";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { historyService } from "@/services/history.service";
+
+// Define the base history interface with all common properties
+interface BaseHistory {
+    id: string;
+    input: string;
+    result: string;
+    createdAt: string;
+    userId: string;
+}
+
+// Define the specific history types
+interface TreeHistory extends BaseHistory {
+    type: 'tree';
+    // Add any tree-specific properties here
+}
+
+interface SubstringHistory extends BaseHistory {
+    type: 'substring';
+    // Add any substring-specific properties here
+}
+
+// Combined type for all history items
+type CombinedHistory = TreeHistory | SubstringHistory;
+
+// Interface for history items with timestamp
+interface HistoryWithTimestamp extends BaseHistory {
+    type: 'tree' | 'substring';
+    timestamp: string;
+}
+
+interface DashboardStats {
+    totalCalculations: number;
+    substringOperations: number;
+    treeOperations: number;
+    savedResults: number;
+}
 
 const container = {
     hidden: { opacity: 0 },
@@ -23,14 +60,66 @@ const item = {
     show: { opacity: 1, y: 0 }
 };
 
+const formatTimestamp = (date: Date): string => {
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
+    if (diffInHours < 1) {
+        const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+        return `${diffInMinutes} minutes ago`;
+    }
+    if (diffInHours < 24) {
+        return `${diffInHours} hours ago`;
+    }
+    return `${Math.floor(diffInHours / 24)} days ago`;
+};
+
 export default function Dashboard() {
     const { user } = useAuth();
-    const stats = [
-        { label: "Total Calculations", value: 128 },
-        { label: "Substring Operations", value: 85 },
-        { label: "Binary Tree Operations", value: 43 },
-        { label: "Saved Results", value: 24 }
-    ];
+    const [stats, setStats] = useState<DashboardStats>({
+        totalCalculations: 0,
+        substringOperations: 0,
+        treeOperations: 0,
+        savedResults: 0
+    });
+    const [recentActivity, setRecentActivity] = useState<HistoryWithTimestamp[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
+                const allHistory = await historyService.getAllHistory({ limit: 5 }) as CombinedHistory[]; // Type assertion here
+
+                // Calculate stats from the history
+                const substringCount = allHistory.filter(h => h.type === 'substring').length;
+                const treeCount = allHistory.filter(h => h.type === 'tree').length;
+
+                setStats({
+                    totalCalculations: allHistory.length,
+                    substringOperations: substringCount,
+                    treeOperations: treeCount,
+                    savedResults: allHistory.length
+                });
+
+                // Get recent activity with timestamps
+                const recent: HistoryWithTimestamp[] = allHistory
+                    .slice(0, 5)
+                    .map(item => ({
+                        ...item,
+                        timestamp: formatTimestamp(new Date(item.createdAt))
+                    }));
+
+                setRecentActivity(recent);
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
 
     const features = [
         {
@@ -46,21 +135,6 @@ export default function Dashboard() {
             icon: GitGraph,
             href: "/binary-tree",
             color: "from-purple-500/20 to-pink-500/20"
-        }
-    ];
-
-    const recentActivity = [
-        {
-            type: "substring",
-            input: "abcabcbb",
-            result: "abc",
-            timestamp: "2 hours ago"
-        },
-        {
-            type: "binary-tree",
-            input: "Sum calculation",
-            result: "Maximum path: 23",
-            timestamp: "5 hours ago"
         }
     ];
 
@@ -87,7 +161,12 @@ export default function Dashboard() {
                     animate="show"
                     className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
                 >
-                    {stats.map((stat, index) => (
+                    {[
+                        { label: "Total Calculations", value: stats.totalCalculations },
+                        { label: "Substring Operations", value: stats.substringOperations },
+                        { label: "Binary Tree Operations", value: stats.treeOperations },
+                        { label: "Saved Results", value: stats.savedResults }
+                    ].map((stat, index) => (
                         <motion.div
                             key={stat.label}
                             variants={item}
@@ -135,32 +214,40 @@ export default function Dashboard() {
                         Recent Activity
                     </h3>
                     <div className="space-y-4">
-                        {recentActivity.map((activity, index) => (
-                            <motion.div
-                                key={index}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
-                            >
-                                <div className="flex items-center">
-                                    {activity.type === "substring" ? (
-                                        <Calculator className="h-4 w-4 mr-2" />
-                                    ) : (
-                                        <GitGraph className="h-4 w-4 mr-2" />
-                                    )}
-                                    <div>
-                                        <p className="font-medium">{activity.input}</p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {activity.result}
-                                        </p>
+                        {loading ? (
+                            <div className="text-center py-4">Loading...</div>
+                        ) : recentActivity.length === 0 ? (
+                            <div className="text-center py-4 text-muted-foreground">
+                                No recent activity
+                            </div>
+                        ) : (
+                            recentActivity.map((activity, index) => (
+                                <motion.div
+                                    key={activity.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                                >
+                                    <div className="flex items-center">
+                                        {activity.type === "substring" ? (
+                                            <Calculator className="h-4 w-4 mr-2" />
+                                        ) : (
+                                            <GitGraph className="h-4 w-4 mr-2" />
+                                        )}
+                                        <div>
+                                            <p className="font-medium">{activity.input}</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {activity.result}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <span className="text-sm text-muted-foreground">
-                                    {activity.timestamp}
-                                </span>
-                            </motion.div>
-                        ))}
+                                    <span className="text-sm text-muted-foreground">
+                                        {activity.timestamp}
+                                    </span>
+                                </motion.div>
+                            ))
+                        )}
                     </div>
                 </AnimatedCard>
             </Spotlight>

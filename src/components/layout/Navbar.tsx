@@ -27,7 +27,6 @@ import {
 export default function Navbar() {
     const [active, setActive] = useState<string | null>(null);
     const { user, logout } = useAuth();
-    const location = useLocation();
 
     const calculators = [
         {
@@ -67,10 +66,10 @@ export default function Navbar() {
 
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 backdrop-blur-sm">
-            <div className="container mx-auto">
+        <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 backdrop-blur-sm ">
+            <div className=" ">
                 <div className="flex h-16 items-center justify-between ">
-                    <Link to="/" className="flex items-center space-x-2">
+                    <Link to="/" className="flex items-center space-x-2 ml-2">
                         <span className="text-xl font-bold">Biostate.ai</span>
                     </Link>
 
@@ -116,7 +115,7 @@ export default function Navbar() {
                                     <DropdownMenuTrigger className="focus:outline-none bg-transparent">
                                         <div className="overflow-hidden rounded-full border bg-accent hover:bg-accent transition-colors">
                                             <Avatar className="h-9 w-9">
-                                                <AvatarImage src={user?.profileImage} />
+                                                <AvatarImage src={user?.data.user.profileImage} />
                                                 <AvatarFallback className="bg-primary/10 text-primary">
                                                     {user?.data?.user?.firstName?.[0]}{user?.data?.user?.lastName?.[0]}
                                                 </AvatarFallback>
@@ -127,10 +126,10 @@ export default function Navbar() {
                                         <DropdownMenuLabel>
                                             <div className="flex flex-col space-y-1">
                                                 <p className="text-sm font-medium">
-                                                    {user?.firstName} {user?.lastName}
+                                                    {user?.data.user.firstName}{user?.data.user.lastName}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    {user?.email}
+                                                    {user?.data.user.email}
                                                 </p>
                                             </div>
                                         </DropdownMenuLabel>

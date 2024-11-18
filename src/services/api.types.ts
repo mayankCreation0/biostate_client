@@ -10,6 +10,7 @@ export interface UserLocation {
 }
 
 export interface User {
+    data: any;
     id: string;
     email: string;
     firstName: string;

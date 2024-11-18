@@ -139,19 +139,3 @@ button:focus-visible {
     @apply bg-background text-foreground;
   }
 }
-@layer base {
-  :root {
-    --container-padding: 1rem;
-  }
-
-  @screen sm {
-    --container-padding: 2rem;
-  }
-
-  .container {
-    @apply px-[var(--container-padding)];
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
