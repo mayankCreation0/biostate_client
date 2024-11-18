@@ -1,5 +1,5 @@
 // src/App.tsx
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/contexts/auth.context'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -44,7 +44,7 @@ export default function App() {
 
             {/* Error routes */}
             {/* <Route path="/404" element={<NotFound />} /> */}
-            <Route path="*" element={<Navigate to="/404" replace />} />
+            {/* <Route path="*" element={<Navigate to="/404" replace />} /> */}
           </Routes>
           <Toaster />
         </Router>
