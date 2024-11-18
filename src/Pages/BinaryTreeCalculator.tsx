@@ -11,11 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { TreeVisualization } from "@/components/TreeVisualization";
 import { useCalculator } from '@/hooks/useCalculator';
 
-interface TreeNode {
-    value: number;
-    left?: TreeNode;
-    right?: TreeNode;
-}
 
 interface TreeResult {
     maxLeafPath: number[];
@@ -26,7 +21,7 @@ interface TreeResult {
 
 export default function BinaryTreeCalculator() {
     const [nodes, setNodes] = useState<string>("");
-    const [loading, setLoading] = useState(false);
+    const [loading] = useState(false);
     const [result, setResult] = useState<TreeResult | null>(null);
     const [savedTrees, setSavedTrees] = useState<Array<{ nodes: string; result: TreeResult }>>([]);
     const { toast } = useToast();

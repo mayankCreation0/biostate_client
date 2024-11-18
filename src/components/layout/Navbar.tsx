@@ -1,6 +1,6 @@
 // src/components/layout/Navbar.tsx
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/auth.context";
 import { Menu, MenuItem, HoveredLink } from "@/components/ui/navbar-menu";
 import { ModeToggle } from "@/components/ui/toggle";

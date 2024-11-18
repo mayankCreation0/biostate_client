@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, GitGraph, Text, User, LogOut } from "lucide-react";
+import { LayoutDashboard, GitGraph, Text, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/auth.context";
 
 export default function BottomNav() {
     const location = useLocation();

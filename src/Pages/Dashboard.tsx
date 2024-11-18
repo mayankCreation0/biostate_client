@@ -166,7 +166,7 @@ export default function Dashboard() {
                         { label: "Substring Operations", value: stats.substringOperations },
                         { label: "Binary Tree Operations", value: stats.treeOperations },
                         { label: "Saved Results", value: stats.savedResults }
-                    ].map((stat, index) => (
+                    ].map((stat) => (
                         <motion.div
                             key={stat.label}
                             variants={item}
