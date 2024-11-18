@@ -47,7 +47,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const { user, token } = await authService.login({ email, password })
             localStorage.setItem('token', token)
-            setUser(user)
+            const userData = await authService.getMe();
+            setUser(userData);
             toast({
                 title: "Welcome back!",
                 description: `Good to see you again, ${user.firstName}!`,
@@ -118,10 +119,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const logout = () => {
-        localStorage.removeItem('token')
-        setUser(null)
-        window.location.href = '/login'
-    }
+        localStorage.removeItem('token');
+        setUser(null);
+        window.location.replace('/login'); // Use replace to prevent navigation history issues
+    };
+
 
     return (
         <AuthContext.Provider

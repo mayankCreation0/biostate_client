@@ -1,5 +1,5 @@
 // src/App.tsx
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/contexts/auth.context'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -18,7 +18,7 @@ import Profile from './Pages/Profile'
 
 export default function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+    <ThemeProvider defaultTheme="system" storageKey="ui-theme">
       <AuthProvider>
         <Router>
           <Routes>
@@ -41,6 +41,7 @@ export default function App() {
               <Route path="/binary-tree" element={<BinaryTreeCalculator />} />
               <Route path="/profile" element={<Profile />} />
             </Route>
+            <Route path="*" element={<Navigate to="/login" replace />} />
 
             {/* Error routes */}
             {/* <Route path="/404" element={<NotFound />} /> */}
