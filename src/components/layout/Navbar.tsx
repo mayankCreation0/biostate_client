@@ -27,7 +27,7 @@ import {
 export default function Navbar() {
     const [active, setActive] = useState<string | null>(null);
     const { user, logout } = useAuth();
-
+console.log("navbar",user)
     const calculators = [
         {
             title: "Substring Calculator",
@@ -115,7 +115,7 @@ export default function Navbar() {
                                     <DropdownMenuTrigger className="focus:outline-none bg-transparent">
                                         <div className="overflow-hidden rounded-full border bg-accent hover:bg-accent transition-colors">
                                             <Avatar className="h-9 w-9">
-                                                <AvatarImage src={user?.data.user.profileImage} />
+                                                <AvatarImage src={user?.data?.user?.profileImage} />
                                                 <AvatarFallback className="bg-primary/10 text-primary">
                                                     {user?.data?.user?.firstName?.[0]}{user?.data?.user?.lastName?.[0]}
                                                 </AvatarFallback>
@@ -126,10 +126,10 @@ export default function Navbar() {
                                         <DropdownMenuLabel>
                                             <div className="flex flex-col space-y-1">
                                                 <p className="text-sm font-medium">
-                                                    {user?.data.user.firstName}{user?.data.user.lastName}
+                                                    {user?.data?.user?.firstName}{user?.data?.user?.lastName}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    {user?.data.user.email}
+                                                    {user?.data?.user?.email}
                                                 </p>
                                             </div>
                                         </DropdownMenuLabel>
